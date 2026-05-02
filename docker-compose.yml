@@ -1,0 +1,14 @@
+services:
+  postgresql:
+    image: "postgres:17"
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DATABASE=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  rabbitmq:
+    image: "rabbitmq:4-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"

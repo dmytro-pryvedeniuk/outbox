@@ -1,0 +1,11 @@
+@CheckOutbox_HostAddress = http://localhost:5259
+
+POST {{CheckOutbox_HostAddress}}/tasks
+Accept: application/json
+Content-Type: application/json
+
+{
+  "Name": "Drink and Dance"
+}
+
+###
