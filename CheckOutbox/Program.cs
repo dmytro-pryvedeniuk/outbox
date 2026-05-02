@@ -36,7 +36,7 @@ builder.Services.AddWolverine(options =>
 
     options.Policies.AutoApplyTransactions();
     options.Policies.UseDurableInboxOnAllListeners();
-    options.Policies.UseDurableOutboxOnAllSendingEndpoints(); // does not work
+    options.Policies.UseDurableOutboxOnAllSendingEndpoints();
 
     if (builder.Environment.IsDevelopment())
     {
