@@ -52,4 +52,6 @@ var app = builder.Build();
 
 app.MapWolverineEndpoints();
 
+app.Services.GetRequiredService<TasksContext>().Database.Migrate();
+
 await app.RunJasperFxCommands(args);
