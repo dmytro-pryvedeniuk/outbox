@@ -21,10 +21,7 @@ builder.Services.AddWolverine(options =>
 
     options.UseRabbitMq(new Uri(rabbitMqUri))
         .AutoProvision()
-        .UseConventionalRouting(
-         // works, but the message remains in wolverine_outgoing_envelopes
-         //x => x.ConfigureSending((conf, _) => conf.UseDurableOutbox())
-        );
+        .UseConventionalRouting();
 
     options.Policies.DisableConventionalLocalRouting();
 

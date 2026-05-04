@@ -1,9 +1,9 @@
 This repo demonstrates Outbox implementation with [Wolverine](https://github.com/JasperFx/wolverine), RabbitMQ, EntityFrameworkCore/PostgreSQL and Wolverine.Http.
 
 - Run `docker-compose up -d` to start PostgreSQL and RabbitMQ.
-- Start the app and send a request using `./CheckOutbox/CheckOutbox.http`. It creates an item in DB and published `TaskItemCreated` message.
+- Start the app and send a request using `./CheckOutbox/CheckOutbox.http`. It creates a `TaskItem` in DB and published `TaskItemCreated` message.
 
-- Note `wolverine.wolverine_outgoing_envelopes` in the output. Once `TaskItemCreated` message is sent it is removed from the table (almost instantly).
+- Note `wolverine.wolverine_outgoing_envelopes` in the output. Once `TaskItemCreated` message is sent it is removed from the table.
 
 ```
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
@@ -47,4 +47,4 @@ info: CheckOutbox.TaskItemCreated[104]
       Successfully processed message CheckOutbox.TaskItemCreated#08dea91e-6bec-043d-8c16-45bede0f0000 from rabbitmq://queue/CheckOutbox.TaskItemCreated
 ```
 
-Both HTTP requests succeed. Both `TaskItemCreated` messages reach the destination.
+Both HTTP requests succeed. Both `TaskItem` instances saved. Both `TaskItemCreated` messages reach the destination.
