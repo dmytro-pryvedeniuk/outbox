@@ -1,9 +1,11 @@
 This repo demonstrates Outbox implementation with [Wolverine](https://github.com/JasperFx/wolverine), RabbitMQ, EntityFrameworkCore/PostgreSQL and Wolverine.Http.
 
 - Run `docker-compose up -d` to start PostgreSQL and RabbitMQ.
-- Start the app and send a request using `./CheckOutbox/CheckOutbox.http`. It creates a `TaskItem` in DB and published `TaskItemCreated` message.
-
-- Note `wolverine.wolverine_outgoing_envelopes` in the output. Once `TaskItemCreated` message is sent it is removed from the table.
+- Start the app and send a request using `./CheckOutbox/CheckOutbox.http`.
+  - `TaskItem` is stored in `Tasks` table.
+  - `TaskItemCreated` message is stored in `wolverine.wolverine_outgoing_envelopes` table within the same transaction.
+  - The request succeeds with `201 Created` status code.
+  - `TaskItemCreated` message is published and removed from the table (almost instantly).
 
 ```
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
@@ -20,8 +22,12 @@ info: CheckOutbox.TaskItemCreated[104]
       Successfully processed message CheckOutbox.TaskItemCreated#08dea91e-3fb8-950f-8c16-45bede0f0000 from rabbitmq://queue/CheckOutbox.TaskItemCreated
 ```
 
-- Run `docker-compose stop rabbitmq` to stop RabbitMQ and send another request. `TaskItemCreated` message can't be sent, but it waits in `wolverine.wolverine_outgoing_envelopes`.
-
+- Run `docker-compose stop rabbitmq` to stop RabbitMQ and send another request.
+  - `TaskItem` is stored in `Tasks` table.
+  - `TaskItemCreated` message is stored in `wolverine.wolverine_outgoing_envelopes` table within the same transaction.
+  - The request succeeds with `201 Created` status code.
+  - `TaskItemCreated` message can't be published and remains in `wolverine.wolverine_outgoing_envelopes` table.
+  
 ```
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       Executed DbCommand (1ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?', @p3='?' (DbType = Guid), @p4='?' (DbType = Int32), @p5='?' (DbType = Binary), @p6='?' (DbType = DateTime), @p7='?', @p8='?', @p9='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
@@ -30,10 +36,12 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       INSERT INTO wolverine.wolverine_outgoing_envelopes (id, attempts, body, deliver_by, destination, message_type, owner_id)
       VALUES (@p3, @p4, @p5, @p6, @p7, @p8, @p9);
 fail: Wolverine.Persistence.Durability.DurableSendingAgent[201]
-      Failed to send outgoing envelopes batch to rabbitmq://exchange/CheckOutbox.TaskItemCreate
+      Failed to send outgoing envelopes batch to rabbitmq://exchange/CheckOutbox.TaskItemCreated
 ```
 
-- Run `docker-compose up -d` to start RabbitMQ again. The connection is recovered automatically and `TaskItemCreated` message reaches the destination.
+- Run `docker-compose up -d` to start RabbitMQ again.
+  - The connection is recovered automatically.
+  - `TaskItemCreated` message is published and removed from the table.
 
 ```
 info: Wolverine.RabbitMQ.Internal.RabbitMqTransport[0]
@@ -47,4 +55,4 @@ info: CheckOutbox.TaskItemCreated[104]
       Successfully processed message CheckOutbox.TaskItemCreated#08dea91e-6bec-043d-8c16-45bede0f0000 from rabbitmq://queue/CheckOutbox.TaskItemCreated
 ```
 
-Both HTTP requests succeed. Both `TaskItem` instances saved. Both `TaskItemCreated` messages reach the destination.
+Both HTTP requests succeed. Both `TaskItem` instances are saved. Both `TaskItemCreated` messages reach the destination.
